@@ -21,8 +21,8 @@ THRESHOLD_HIGH = 150                    #This parameter holds value of threshold
 RHO = 1                                 #This parameter is distance resolution in pixels of the Hough grid.
 THETA = np.pi / 180                     #This parameter is angular resolution in radians of the Hough grid.
 THRESHOLD = 15                          #This parameter is minimum number of votes.
-MIN_LINE_LENGHT = 10                    #This parameter is minimum numbe of pixels making up a line.
-MAX_LINE_GAP = 10                       #This parameter is maximum GAP in Pixels between connectable line segments.
+MIN_LINE_LENGHT = 25                    #This parameter is minimum numbe of pixels making up a line.
+MAX_LINE_GAP = 15                       #This parameter is maximum GAP in Pixels between connectable line segments.
 
 #LINE Customization
 LINE_COLOR = (150,150,0)                #This parameter holds line color (BGR format).
@@ -33,7 +33,7 @@ LINE_THICKNESS = 5                      #This parameter holds line thickness val
 #
 ###################################
 #Select Area of interest
-# @fn       : interestArea
+# @fn       : interestAreaTriangle
 # @brief    : This function masking gray image.
 # @param[0] : This parameter is image data for masking process. Image must convert gray scale.
 # @param[1] : This parameter holds polygon point on image.
@@ -41,9 +41,9 @@ LINE_THICKNESS = 5                      #This parameter holds line thickness val
 # @return   : Masked image
 # @NOTE     : This function just works gray scale image.
 
-def interestArea(Image, Triangle):
+def interestAreaTriangle(Image, Triangle):
     #create a mask that its size is same with Image.
-    #0 - Create a polygon and get data of Image
+    #0 - Create a triangle and get data of Image
     polygon = np.array([Triangle])
     IMG_HEIGHT = Image.shape[0]
     IMG_WIDTH = Image.shape[1]
@@ -53,6 +53,28 @@ def interestArea(Image, Triangle):
     mask = cv2.fillPoly(mask, polygon, 255)
     #2 - 'And' operation with mask and img
     return cv2.bitwise_and(Image, Image, mask= mask)
+
+# @fn       : interestAreaRectangle
+# @brief    : This function masking gray image.
+# @param[0] : This parameter is image data for masking process. Image must convert gray scale.
+# @param[1] : This parameter holds rectangle point on image.
+# 
+# @return   : Masked image
+# @NOTE     : This function just works gray scale image.
+
+def interestAreaRectangle(Image, Rectangle):
+    #create a mask for interest area 
+    IMG_HEIGHT = Image.shape[0]
+    IMG_WIDTH = Image.shape[1]
+    IMG_CHNL = 1
+    #1 - create a new zero array that size is same img to mask.
+    mask = np.zeros((IMG_HEIGHT, IMG_WIDTH, IMG_CHNL), np.uint8)
+
+    #2 - set interesting area in zero array
+    mask = cv2.rectangle(mask,(Rectangle[0][0],Rectangle[0][1]), (Rectangle[1][0], Rectangle[1][1]), 255, -1)
+
+    #3 - do bitwise operation between img and mask.
+    return cv2.bitwise_and(Image, Image, mask = mask)
 
 #Find line from insteresting area of image
 # @fn       : interestingArea
